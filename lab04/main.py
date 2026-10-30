@@ -1,12 +1,25 @@
 import sys
-from stats import average_by_city, read_valid, warmest_city
+from stats import average_by_city, read_valid, warmest_city, parse_record
 
 lines = sys.stdin.read().splitlines()
 records = read_valid(lines)
-non_empty = sum(1 for l in lines if l.strip())
+
+skip = 0
+for line in lines:
+    if line.strip() == "":
+        continue
+    try:
+        parse_record(line)
+    except ValueError:
+        skip += 1
+        
+average = average_by_city(records)
+best = warmest_city(records)
 
 print(len(records))
-print(non_empty - len(records))
-if records:
-    city = warmest_city(records)
-    print(f'{average_by_city(records)[city]:.1f}')
+print(skip)
+
+if best is None:
+    print(0)
+else:
+    print(average[best])
