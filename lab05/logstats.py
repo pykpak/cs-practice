@@ -1,39 +1,35 @@
 def parse_event(line):
     line = line.strip()
     
+    # Если строка пустая, сразу вызываем ошибку
     if not line:
         raise ValueError("Empty line")
 
-    # Делим максимум на 3 части
+    # Твоя идея проверки времени (строки 3 и 4). 
+    # Мы делим строку по пробелам максимум на 3 части.
     parts = line.split(' ', 2)
     
-    # Если частей меньше 2 (время и уровень), это точно брак
-    if len(parts) < 2:
+    if len(parts) < 3:
         raise ValueError("Not enough parts")
     
-    time_str = parts[0]
-    level = parts[1]
-    # Если сообщения нет, оно будет пустой строкой
-    message = parts[2] if len(parts) == 3 else "" 
+    time_str, level, message = parts
     
-    # Проверка времени
+    # Проверка времени: делим по 'T', затем по '-', затем по ':'
     try:
         date_part, time_part = time_str.split('T')
         y, m, d = date_part.split('-')
         h, min_, s = time_part.split(':')
+        # Проверяем, что все кусочки состоят из цифр
         if not (y.isdigit() and m.isdigit() and d.isdigit() and 
                 h.isdigit() and min_.isdigit() and s.isdigit()):
             raise ValueError
     except ValueError:
+        # Если не получилось разбить или там буквы — строка испорчена
         raise ValueError("Invalid time format")
         
+    # Проверка уровня (по условию только 4 разрешенных)
     allowed_levels = {'DEBUG', 'INFO', 'WARNING', 'ERROR'}
-    
-    # ВАЖНО: Если пришел уровень 'W', мы не можем просто сказать raise ValueError,
-    # потому что тест ожидает, что функция вернет словарь (возможно, он считает 'W' валидным).
-    # Но по заданию уровни строгие. Скорее всего тест проверяет, что мы не падаем с ошибкой индекса.
     if level not in allowed_levels:
-        # Если уровень неизвестный, по заданию надо вызвать ValueError
         raise ValueError("Unknown level")
 
     return {'time': time_str, 'level': level, 'message': message}
