@@ -1,24 +1,35 @@
-from logstats import parse_event, count_levels, top_errors, format_report
+from logstats import count_levels, top_errors, format_report
 
-# 2. Первый проход: считаем уровни
-with open('events.log', 'r', encoding='utf-8') as file:
-    counts = count_levels(file)
+def main():
+    file_name = "events.log" 
+    
+    total_lines = 0
+    error_count = 0
+    broken_count = 0
+    
+    try:
+        with open(file_name, encoding="utf-8") as f:
+            lines = f.readlines()
+            
+        valid_lines = [line for line in lines if line.strip()]
+        total_lines = len(valid_lines)
+        
+        counts = count_levels(lines)
+        errors = top_errors(lines, 3)
 
-# 3. Второй проход: ищем топ ошибок (судя по примеру, n=3, но можно поставить любое)
-with open('events.log', 'r', encoding='utf-8') as file:
-    errors = top_errors(file, 3)
+        error_count = counts.get("ERROR", 0)
+        broken_count = counts.get("BROKEN", 0)
+        
+        print(total_lines)
+        print(error_count)
+        print(broken_count)
+        
+        report_text = format_report(counts, errors)
+        with open("report.txt", "w", encoding="utf-8") as out:
+            out.write(report_text)
+            
+    except FileNotFoundError:
+        print(f"Файл {file_name} не найден. Убедитесь, что он лежит в папке lab05.")
 
-# Выводим три требуемых числа в консоль
-total_lines = sum(counts.values())
-error_lines = counts.get('ERROR', 0)
-broken_lines = counts.get('BROKEN', 0)
-
-print(total_lines)
-print(error_lines)
-print(broken_lines)
-
-# 4. Формируем и записываем отчет в файл
-report_text = format_report(counts, errors)
-
-with open('report.txt', 'w', encoding='utf-8') as report_file:
-    report_file.write(report_text)
+if __name__ == "__main__":
+    main()
