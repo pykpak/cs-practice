@@ -1,11 +1,7 @@
 from logstats import count_levels, top_errors, format_report
 
 def main():
-    file_name = "events.log" 
-    
-    total_lines = 0
-    error_count = 0
-    broken_count = 0
+    file_name = input().strip()
     
     try:
         with open(file_name, encoding="utf-8") as f:
@@ -16,7 +12,7 @@ def main():
         
         counts = count_levels(lines)
         errors = top_errors(lines, 3)
-
+        
         error_count = counts.get("ERROR", 0)
         broken_count = counts.get("BROKEN", 0)
         
@@ -29,7 +25,9 @@ def main():
             out.write(report_text)
             
     except FileNotFoundError:
-        print(f"Файл {file_name} не найден. Убедитесь, что он лежит в папке lab05.")
+        print(f"Файл {file_name} не найден")
+    except Exception as e:
+        print(f"Ошибка: {e}")
 
 if __name__ == "__main__":
     main()
